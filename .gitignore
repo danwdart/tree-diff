@@ -1,6 +1,10 @@
-dist/
-dist-newstyle/
-.ghc.environment.*
-cabal.project.local
-
-bench.html
+.stack-work
+dist
+dist-newstyle
+.ghc.*
+google.json
+*.hi
+*.o
+result*
+.direnv
+hie.yaml
