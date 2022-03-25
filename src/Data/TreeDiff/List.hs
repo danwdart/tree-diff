@@ -8,6 +8,7 @@ module Data.TreeDiff.List (
 
 import Control.DeepSeq (NFData (..))
 import Control.Monad.ST (ST, runST)
+import Data.Bifunctor (second)
 
 import qualified Data.Primitive as P
 
@@ -46,7 +47,7 @@ diffBy _  [] []   = []
 diffBy _  []  ys' = map Ins ys'
 diffBy _  xs' []  = map Del xs'
 diffBy eq xs' ys'
-    | otherwise = reverse (getCell lcs)
+     = reverse (getCell lcs)
   where
     xn = length xs'
     yn = length ys'
@@ -99,7 +100,7 @@ diffBy eq xs' ys'
                 -- from diagonal
                 let cellX1 :: Cell [Edit a]
                     cellX1
-                        | eq x y    = bimap id   (Cpy x :)   cellC'
+                        | eq x y    = second (Cpy x :)   cellC'
                         | otherwise = bimap (+1) (Swp x y :) cellC'
 
                 -- from left

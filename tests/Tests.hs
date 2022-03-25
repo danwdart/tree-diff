@@ -1,29 +1,30 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE UnicodeSyntax #-}
 module Main (main) where
 
-import Data.Proxy                 (Proxy (..))
-import Data.Word                  (Word8)
-import GHC.Generics               (Generic)
-import Prelude ()
-import Prelude.Compat
-import Test.QuickCheck            (Property, counterexample, (===))
-import Test.Tasty                 (TestTree, defaultMain, testGroup)
-import Test.Tasty.Golden.Advanced (goldenTest)
-import Test.Tasty.QuickCheck      (testProperty)
+import           Data.Proxy                   (Proxy (..))
+import           Data.Word                    (Word8)
+import           GHC.Generics                 (Generic)
+import           Prelude                      ()
+import           Prelude.Compat
+import           Test.QuickCheck              (Property, counterexample, (===))
+import           Test.Tasty                   (TestTree, defaultMain, testGroup)
+import           Test.Tasty.Golden.Advanced   (goldenTest)
+import           Test.Tasty.QuickCheck        (testProperty)
 
 import qualified Text.Parsec                  as P
 import qualified Text.PrettyPrint.ANSI.Leijen as WL
 import qualified Text.Trifecta                as T (eof, parseString)
 import qualified Text.Trifecta.Result         as T (ErrInfo (..), Result (..))
 
-import Data.TreeDiff
-import Data.TreeDiff.Golden
-import Data.TreeDiff.List
-import Data.TreeDiff.QuickCheck
+import           Data.TreeDiff
+import           Data.TreeDiff.Golden
+import           Data.TreeDiff.List
+import           Data.TreeDiff.QuickCheck
 
 import qualified RefDiffBy
 
-main :: IO ()
+main ∷ IO ()
 main = defaultMain $ testGroup "tests"
     [ testProperty "trifecta-pretty roundtrip" roundtripTrifectaPretty
     , testProperty "parsec-ansi-wl-pprint roundtrip" roundtripParsecAnsiWl
@@ -36,7 +37,7 @@ main = defaultMain $ testGroup "tests"
 -- diffBy
 -------------------------------------------------------------------------------
 
-diffByModel :: [Word8] -> [Word8] -> Property
+diffByModel ∷ [Word8] → [Word8] -> Property
 diffByModel xs ys =
     diffBy (==) xs ys === RefDiffBy.diffBy (==) xs ys
 
@@ -49,7 +50,7 @@ diffByModel xs ys =
 -- We demonstrate the use of 'ediffEq'. We could used '===' there,
 -- but now the nice diff will be printed as well
 -- (as there is 'ToExpr Expr' instance).
-roundtripTrifectaPretty :: Expr -> Property
+roundtripTrifectaPretty ∷ Expr → Property
 roundtripTrifectaPretty e = counterexample info $ ediffEq (Just e) res'
   where
     doc = show (prettyExpr e)
@@ -69,7 +70,7 @@ roundtripTrifectaPretty e = counterexample info $ ediffEq (Just e) res'
         T.Success e' -> Just e'
         T.Failure _  -> Nothing
 
-roundtripParsecAnsiWl :: Expr -> Property
+roundtripParsecAnsiWl ∷ Expr → Property
 roundtripParsecAnsiWl e = counterexample info $ ediffEq (Just e) res'
   where
     doc = show (WL.plain (ansiWlExpr e))
@@ -115,7 +116,7 @@ data Foo = Foo
 
 instance ToExpr Foo
 
-exFoo :: Foo
+exFoo ∷ Foo
 exFoo = Foo
     { fooInt = 42
     , fooBar = [Just "pub", Just "night\nclub"]
@@ -151,7 +152,7 @@ instance ToExpr MyInt3
 instance ToExpr Positional
 instance ToExpr Empty
 
-goldenTests :: TestTree
+goldenTests ∷ TestTree
 goldenTests = testGroup "Golden"
     [ ediffGolden goldenTest "exFoo" "fixtures/exfoo.expr" $
         return exFoo

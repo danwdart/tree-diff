@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP           #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE UnicodeSyntax #-}
 -- | Map which remembers the 'fromList' order.
 -- This module is minimal on purpose.
 module Data.TreeDiff.OMap (
@@ -15,16 +16,16 @@ module Data.TreeDiff.OMap (
     elems,
 ) where
 
-import Data.List      (sortBy)
-import Data.Ord       (comparing)
-import Data.Semialign (Semialign (..))
-import Data.These     (These (..))
-import Control.DeepSeq  (NFData (..))
+import           Control.DeepSeq (NFData (..))
+import           Data.List       (sortBy)
+import           Data.Ord        (comparing)
+import           Data.Semialign  (Semialign (..))
+import           Data.These      (These (..))
 
 #if MIN_VERSION_containers(0,5,0)
 import qualified Data.Map.Strict as Map
 #else
-import qualified Data.Map as Map
+import qualified Data.Map        as Map
 #endif
 
 import qualified Test.QuickCheck as QC
@@ -99,11 +100,11 @@ instance (Ord k, QC.Arbitrary k) => QC.Arbitrary1 (OMap k) where
 -- >>> empty :: OMap String Integer
 -- fromList []
 --
-empty :: OMap k v
+empty ∷ OMap k v
 empty = OMap Map.empty
 
 -- | Elements in key ascending order.
-elems :: OMap k v -> [v]
+elems ∷ OMap k v → [v]
 elems (OMap m) = map (snd . getVal) $ Map.toAscList m
 
 -- |
@@ -114,7 +115,7 @@ elems (OMap m) = map (snd . getVal) $ Map.toAscList m
 -- >>> toAscList $ fromList [('g', "gamma"), ('b', "beta"), ('a', "alpha")]
 -- [('a',"alpha"),('b',"beta"),('g',"gamma")]
 --
-toAscList :: OMap k v -> [(k, v)]
+toAscList ∷ OMap k v → [(k, v)]
 toAscList (OMap m) = map getVal $ Map.toAscList m
 
 -- | /O(n log n)/. List in creation order.
@@ -126,13 +127,13 @@ toAscList (OMap m) = map getVal $ Map.toAscList m
 -- >>> toList $ fromList [('g', "gamma"), ('b', "beta"), ('a', "alpha")]
 -- [('g',"gamma"),('b',"beta"),('a',"alpha")]
 --
-toList :: OMap k v -> [(k, v)]
+toList ∷ OMap k v → [(k, v)]
 toList (OMap m) = map getVal $ sortBy (comparing getIdx) $ Map.toList m
 
-getIdx :: (k, Val v) -> Int
+getIdx ∷ (k, Val v) → Int
 getIdx (_, Val i _) = i
 
-getVal :: (k, Val v) -> (k, v)
+getVal ∷ (k, Val v) → (k, v)
 getVal (k, Val _ v) = (k, v)
 
 -- |
@@ -140,7 +141,7 @@ getVal (k, Val _ v) = (k, v)
 -- >>> fromList [('g', "gamma"), ('b', "beta"), ('a', "alpha")]
 -- fromList [('g',"gamma"),('b',"beta"),('a',"alpha")]
 --
-fromList :: Ord k => [(k, v)] -> OMap k v
+fromList ∷ Ord k ⇒ [(k, v)] → OMap k v
 fromList kvs = OMap (Map.fromList (zipWith p [0..] kvs)) where
     p i (k, v) = (k, Val i v)
 

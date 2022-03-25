@@ -1,14 +1,15 @@
+{-# LANGUAGE UnicodeSyntax #-}
 -- | "Golden tests" using 'ediff' comparison.
 module Data.TreeDiff.Golden (
     ediffGolden,
 ) where
 
-import Data.TreeDiff
-import Prelude ()
-import Prelude.Compat
-import System.Console.ANSI (SGR (Reset), setSGRCode)
-import Text.Parsec         (eof, parse)
-import Text.Parsec.Text ()
+import           Data.TreeDiff
+import           Prelude                      ()
+import           Prelude.Compat
+import           System.Console.ANSI          (SGR (Reset), setSGRCode)
+import           Text.Parsec                  (eof, parse)
+import           Text.Parsec.Text             ()
 
 import qualified Data.ByteString              as BS
 import qualified Data.Text                    as T
@@ -37,8 +38,8 @@ import qualified Text.PrettyPrint.ANSI.Leijen as WL
 -- for a proper example.
 --
 ediffGolden
-    :: (Eq a, ToExpr a)
-    => (testName -> IO Expr -> IO Expr -> (Expr -> Expr -> IO (Maybe String)) -> (Expr -> IO ()) -> testTree) -- ^ 'goldenTest'
+    ∷ (Eq a, ToExpr a)
+    ⇒ (testName → IO Expr -> IO Expr -> (Expr -> Expr -> IO (Maybe String)) -> (Expr -> IO ()) -> testTree) -- ^ 'goldenTest'
     -> testName  -- ^ test name
     -> FilePath  -- ^ path to "golden file"
     -> IO a      -- ^ result value
@@ -57,5 +58,5 @@ ediffGolden impl testName fp x = impl testName expect actual cmp wrt
             setSGRCode [Reset] ++ showWL (ansiWlEditExprCompact $ ediff a b)
     wrt expr = BS.writeFile fp $ TE.encodeUtf8 $ T.pack $ showWL (WL.plain (ansiWlExpr expr)) ++ "\n"
 
-showWL :: WL.Doc -> String
+showWL ∷ WL.Doc → String
 showWL doc = WL.displayS (WL.renderSmart 0.4 80 doc) ""

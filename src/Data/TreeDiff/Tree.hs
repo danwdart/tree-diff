@@ -1,9 +1,10 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP           #-}
+{-# LANGUAGE UnicodeSyntax #-}
 -- | Tree diffing working on @containers@ 'Tree'.
 module Data.TreeDiff.Tree (treeDiff, EditTree (..), Edit (..)) where
 
-import Data.Tree          (Tree (..))
-import Data.TreeDiff.List
+import           Data.Tree          (Tree (..))
+import           Data.TreeDiff.List
 
 -- $setup
 -- >>> import Data.Tree (Tree (..))
@@ -72,7 +73,7 @@ import Data.TreeDiff.List
 -- >>> ppEditTree PP.char (treeDiff x w)
 -- (a b (c d +x e) f)
 --
-treeDiff :: (Show a, Eq a) => Tree a -> Tree a -> Edit (EditTree a)
+treeDiff ∷ (Show a, Eq a) ⇒ Tree a → Tree a -> Edit (EditTree a)
 treeDiff ta@(Node a as) tb@(Node b bs)
     | a == b = Cpy $ EditNode a (map rec (diffBy (==) as bs))
     | otherwise = Swp (treeToEdit ta) (treeToEdit tb)
@@ -91,5 +92,5 @@ data EditTree a
     = EditNode a [Edit (EditTree a)]
   deriving Show
 
-treeToEdit :: Tree a -> EditTree a
+treeToEdit ∷ Tree a → EditTree a
 treeToEdit = go where go (Node x xs) = EditNode x (map (Cpy . go) xs)

@@ -1,3 +1,4 @@
+{-# LANGUAGE UnicodeSyntax #-}
 -- | This module uses 'Expr' for richer diffs than based on 'Tree'.
 module Data.TreeDiff.Expr (
     -- * Types
@@ -9,15 +10,15 @@ module Data.TreeDiff.Expr (
     exprDiff,
     ) where
 
-import Prelude ()
-import Prelude.Compat
+import           Prelude            ()
+import           Prelude.Compat
 
-import Control.DeepSeq (NFData (..))
-import Data.Semialign  (alignWith)
-import Data.These      (These (..))
+import           Control.DeepSeq    (NFData (..))
+import           Data.Semialign     (alignWith)
+import           Data.These         (These (..))
 
-import Data.TreeDiff.List
-import Data.TreeDiff.OMap (OMap)
+import           Data.TreeDiff.List
+import           Data.TreeDiff.OMap (OMap)
 
 import qualified Data.TreeDiff.OMap as OMap
 import qualified Test.QuickCheck    as QC
@@ -65,7 +66,7 @@ instance QC.Arbitrary Expr where
         ++ [ App n' es  | n'  <- QC.shrink n  ]
         ++ [ App n  es' | es' <- QC.shrink es ]
 
-arbName :: QC.Gen String
+arbName ∷ QC.Gen String
 arbName = QC.frequency
     [ (10, QC.liftArbitrary $ QC.elements $ ['a'..'z'] ++ ['0' .. '9'] ++ "+-_:")
     , (1, show <$> (QC.arbitrary :: QC.Gen String))
@@ -76,7 +77,7 @@ arbName = QC.frequency
 -- | Diff two 'Expr'.
 --
 -- For examples see 'ediff' in "Data.TreeDiff.Class".
-exprDiff :: Expr -> Expr -> Edit EditExpr
+exprDiff ∷ Expr → Expr -> Edit EditExpr
 exprDiff = impl
   where
     impl ea eb | ea == eb = Cpy (EditExp ea)
@@ -91,9 +92,9 @@ exprDiff = impl
         | a == b    = Cpy $ EditRec a $ alignWith cls as bs
         | otherwise = Swp (EditExp ea) (EditExp eb)
       where
-        cls :: These Expr Expr -> Edit EditExpr
-        cls (This x) = Del (EditExp x)
-        cls (That y) = Ins (EditExp y)
+        cls ∷ These Expr Expr → Edit EditExpr
+        cls (This x)    = Del (EditExp x)
+        cls (That y)    = Ins (EditExp y)
         cls (These x y) = exprDiff x y
 
     -- lists

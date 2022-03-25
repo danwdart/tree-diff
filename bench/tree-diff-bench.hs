@@ -1,27 +1,28 @@
+{-# LANGUAGE UnicodeSyntax #-}
 {-# OPTIONS -fno-warn-orphans #-}
 module Main (main) where
 
-import Control.DeepSeq   (NFData (..))
-import Control.Exception (evaluate)
-import Criterion.Main    (bench, bgroup, defaultMain, nf)
+import           Control.DeepSeq     (NFData (..))
+import           Control.Exception   (evaluate)
+import           Criterion.Main      (bench, bgroup, defaultMain, nf)
 
 import qualified Data.Algorithm.Diff as Diff
 
-import Data.TreeDiff.List (diffBy)
+import           Data.TreeDiff.List  (diffBy)
 
-smallA :: [Int]
-smallB :: [Int]
+smallA ∷ [Int]
+smallB ∷ [Int]
 
 smallA = [0, 5 .. 100]
 smallB = [0, 3 .. 72]
 
-bigA :: [Int]
+bigA ∷ [Int]
 bigA = [0, 5 .. 10000]
 
-bigB :: [Int]
+bigB ∷ [Int]
 bigB = [0, 3 .. 7200]
 
-main :: IO ()
+main ∷ IO ()
 main = do
   evaluate (rnf smallA)
   evaluate (rnf smallB)

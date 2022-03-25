@@ -1,3 +1,4 @@
+{-# LANGUAGE UnicodeSyntax #-}
 -- | Diffing of (expression) trees.
 --
 -- Diffing arbitrary Haskell data. First we convert values to untyped
@@ -21,7 +22,7 @@ module Data.TreeDiff (
     module Data.TreeDiff.Parser,
     ) where
 
-import Data.TreeDiff.Class
-import Data.TreeDiff.Expr
-import Data.TreeDiff.Parser
-import Data.TreeDiff.Pretty
+import           Data.TreeDiff.Class
+import           Data.TreeDiff.Expr
+import           Data.TreeDiff.Parser
+import           Data.TreeDiff.Pretty

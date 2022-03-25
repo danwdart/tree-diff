@@ -1,3 +1,4 @@
+{-# LANGUAGE UnicodeSyntax #-}
 -- | Utilities to pretty print 'Expr' and 'EditExpr'
 module Data.TreeDiff.Pretty (
     -- * Explicit dictionary
@@ -24,11 +25,12 @@ module Data.TreeDiff.Pretty (
     escapeName,
 ) where
 
-import Data.Char          (isAlphaNum, isPunctuation, isSymbol, ord)
-import Data.Either        (partitionEithers)
-import Data.TreeDiff.Expr
-import Numeric            (showHex)
-import Text.Read.Compat   (readMaybe)
+import           Data.Char                    (isAlphaNum, isPunctuation,
+                                               isSymbol, ord)
+import           Data.Either                  (partitionEithers)
+import           Data.TreeDiff.Expr
+import           Numeric                      (showHex)
+import           Text.Read.Compat             (readMaybe)
 
 import qualified Data.TreeDiff.OMap           as OMap
 import qualified Text.PrettyPrint             as HJ
@@ -82,7 +84,7 @@ data Pretty doc = Pretty
 -- >>> putStrLn $ escapeName "_,_"
 -- `_,_`
 --
-escapeName :: String -> String
+escapeName ∷ String → String
 escapeName n
     | null n                      = "``"
     | isValidString n             = n
@@ -105,15 +107,15 @@ escapeName n
     isValidString s
         | length s >= 2 && head s == '"' && last s == '"' =
             case readMaybe s :: Maybe String of
-                Just _ -> True
+                Just _  -> True
                 Nothing -> False
     isValidString _         = False
 
 -- | Pretty print an 'Expr' using explicit pretty-printing dictionary.
-ppExpr :: Pretty doc -> Expr -> doc
+ppExpr ∷ Pretty doc → Expr -> doc
 ppExpr p = ppExpr' p False
 
-ppExpr' :: Pretty doc -> Bool -> Expr -> doc
+ppExpr' ∷ Pretty doc → Bool -> Expr -> doc
 ppExpr' p = impl where
     impl _ (App x []) = ppCon p (escapeName x)
     impl b (App x xs) = ppParens' b $ ppApp p (ppCon p (escapeName x)) (map (impl True) xs)
@@ -127,14 +129,14 @@ ppExpr' p = impl where
     ppParens' False = id
 
 -- | Pretty print an @'Edit' 'EditExpr'@ using explicit pretty-printing dictionary.
-ppEditExpr :: Pretty doc -> Edit EditExpr -> doc
+ppEditExpr ∷ Pretty doc → Edit EditExpr -> doc
 ppEditExpr = ppEditExpr' False
 
 -- | Like 'ppEditExpr' but print unchanged parts only shallowly
-ppEditExprCompact :: Pretty doc -> Edit EditExpr -> doc
+ppEditExprCompact ∷ Pretty doc → Edit EditExpr -> doc
 ppEditExprCompact = ppEditExpr' True
 
-ppEditExpr' :: Bool -> Pretty doc -> Edit EditExpr -> doc
+ppEditExpr' ∷ Bool → Pretty doc -> Edit EditExpr -> doc
 ppEditExpr' compact p = go
   where
     go = ppEdits p . ppEdit False
@@ -173,7 +175,7 @@ ppEditExpr' compact p = go
 -------------------------------------------------------------------------------
 
 -- | 'Pretty' via @pretty@ library.
-prettyPretty :: Pretty HJ.Doc
+prettyPretty ∷ Pretty HJ.Doc
 prettyPretty = Pretty
     { ppCon    = HJ.text
     , ppRec    = \c xs -> prettyGroup (c HJ.<+> HJ.char '{') (HJ.char '}')
@@ -188,10 +190,10 @@ prettyPretty = Pretty
     , ppParens = HJ.parens
     }
 
-prettyGroup :: HJ.Doc -> HJ.Doc -> [HJ.Doc] -> HJ.Doc
+prettyGroup ∷ HJ.Doc → HJ.Doc -> [HJ.Doc] -> HJ.Doc
 prettyGroup l r xs = HJ.cat [l, HJ.sep (map (HJ.nest 2) (prettyPunct (HJ.char ',') r xs))]
 
-prettyPunct :: HJ.Doc -> HJ.Doc -> [HJ.Doc] -> [HJ.Doc]
+prettyPunct ∷ HJ.Doc → HJ.Doc -> [HJ.Doc] -> [HJ.Doc]
 prettyPunct _   end []     = [end]
 prettyPunct _   end [x]    = [x HJ.<> end]
 prettyPunct sep end (x:xs) = (x HJ.<> sep) : prettyPunct sep end xs
@@ -200,15 +202,15 @@ prettyPunct sep end (x:xs) = (x HJ.<> sep) : prettyPunct sep end xs
 --
 -- >>> prettyExpr $ Rec "ex" (OMap.fromList [("[]", App "bar" [])])
 -- ex {`[]` = bar}
-prettyExpr :: Expr -> HJ.Doc
+prettyExpr ∷ Expr → HJ.Doc
 prettyExpr = ppExpr prettyPretty
 
 -- | Pretty print @'Edit' 'EditExpr'@ using @pretty@.
-prettyEditExpr :: Edit EditExpr -> HJ.Doc
+prettyEditExpr ∷ Edit EditExpr → HJ.Doc
 prettyEditExpr = ppEditExpr prettyPretty
 
 -- | Compact 'prettyEditExpr'.
-prettyEditExprCompact :: Edit EditExpr -> HJ.Doc
+prettyEditExprCompact ∷ Edit EditExpr → HJ.Doc
 prettyEditExprCompact = ppEditExprCompact prettyPretty
 
 -------------------------------------------------------------------------------
@@ -216,7 +218,7 @@ prettyEditExprCompact = ppEditExprCompact prettyPretty
 -------------------------------------------------------------------------------
 
 -- | 'Pretty' via @ansi-wl-pprint@ library (with colors).
-ansiWlPretty :: Pretty WL.Doc
+ansiWlPretty ∷ Pretty WL.Doc
 ansiWlPretty = Pretty
     { ppCon    = WL.text
     , ppRec    = \c xs -> ansiGroup (c WL.<+> WL.lbrace) WL.rbrace
@@ -231,19 +233,19 @@ ansiWlPretty = Pretty
     , ppParens = WL.parens
     }
 
-ansiGroup :: WL.Doc -> WL.Doc -> [WL.Doc] -> WL.Doc
+ansiGroup ∷ WL.Doc → WL.Doc -> [WL.Doc] -> WL.Doc
 ansiGroup l r xs = WL.group $ WL.nest 2 (l WL.<$$> WL.vsep (WL.punctuate WL.comma xs) WL.<> r)
 
 -- | Pretty print 'Expr' using @ansi-wl-pprint@.
-ansiWlExpr :: Expr -> WL.Doc
+ansiWlExpr ∷ Expr → WL.Doc
 ansiWlExpr = ppExpr ansiWlPretty
 
 -- | Pretty print @'Edit' 'EditExpr'@ using @ansi-wl-pprint@.
-ansiWlEditExpr :: Edit EditExpr -> WL.Doc
+ansiWlEditExpr ∷ Edit EditExpr → WL.Doc
 ansiWlEditExpr = ppEditExpr ansiWlPretty
 
 -- | Compact 'ansiWlEditExpr'
-ansiWlEditExprCompact :: Edit EditExpr -> WL.Doc
+ansiWlEditExprCompact ∷ Edit EditExpr → WL.Doc
 ansiWlEditExprCompact = ppEditExprCompact ansiWlPretty
 
 -------------------------------------------------------------------------------
@@ -251,20 +253,20 @@ ansiWlEditExprCompact = ppEditExprCompact ansiWlPretty
 -------------------------------------------------------------------------------
 
 -- | Like 'ansiWlPretty' but color the background.
-ansiWlBgPretty :: Pretty WL.Doc
+ansiWlBgPretty ∷ Pretty WL.Doc
 ansiWlBgPretty = ansiWlPretty
     { ppIns    = \d -> WL.ondullgreen $ WL.white $ WL.plain $ WL.char '+' WL.<> d
     , ppDel    = \d -> WL.ondullred   $ WL.white $ WL.plain $ WL.char '-' WL.<> d
     }
 
 -- | Pretty print 'Expr' using @ansi-wl-pprint@.
-ansiWlBgExpr :: Expr -> WL.Doc
+ansiWlBgExpr ∷ Expr → WL.Doc
 ansiWlBgExpr = ppExpr ansiWlBgPretty
 
 -- | Pretty print @'Edit' 'EditExpr'@ using @ansi-wl-pprint@.
-ansiWlBgEditExpr :: Edit EditExpr -> WL.Doc
+ansiWlBgEditExpr ∷ Edit EditExpr → WL.Doc
 ansiWlBgEditExpr = ppEditExpr ansiWlBgPretty
 
 -- | Compact 'ansiWlBgEditExpr'.
-ansiWlBgEditExprCompact :: Edit EditExpr -> WL.Doc
+ansiWlBgEditExprCompact ∷ Edit EditExpr → WL.Doc
 ansiWlBgEditExprCompact = ppEditExprCompact ansiWlBgPretty

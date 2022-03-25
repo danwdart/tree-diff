@@ -6,6 +6,7 @@
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators       #-}
+{-# LANGUAGE UnicodeSyntax       #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE EmptyCase           #-}
 #endif
@@ -20,90 +21,91 @@ module Data.TreeDiff.Class (
     GToExpr,
     ) where
 
-import Data.Foldable    (toList)
-import Data.List.Compat (uncons)
-import Data.Proxy       (Proxy (..))
-import GHC.Generics
-       (Constructor (..), Generic (..), K1 (..), M1 (..), Selector (..),
-       U1 (..), V1, (:*:) (..), (:+:) (..))
+import           Data.Foldable               (toList)
+import           Data.List.Compat            (uncons)
+import           Data.Proxy                  (Proxy (..))
+import           GHC.Generics                (Constructor (..), Generic (..),
+                                              K1 (..), M1 (..), Selector (..),
+                                              U1 (..), V1, (:*:) (..),
+                                              (:+:) (..))
 
-import qualified Data.Map           as Map
-import qualified Data.TreeDiff.OMap as OMap
+import qualified Data.Map                    as Map
+import qualified Data.TreeDiff.OMap          as OMap
 
-import Data.TreeDiff.Expr
+import           Data.TreeDiff.Expr
 
 -- Instances
-import Control.Applicative   (Const (..), ZipList (..))
-import Data.Fixed            (Fixed, HasResolution)
-import Data.Functor.Identity (Identity (..))
-import Data.Int
-import Data.List.NonEmpty    (NonEmpty (..))
-import Data.Void             (Void)
-import Data.Word
-import Numeric.Natural       (Natural)
+import           Control.Applicative         (Const (..), ZipList (..))
+import           Data.Fixed                  (Fixed, HasResolution)
+import           Data.Functor.Identity       (Identity (..))
+import           Data.Int
+import           Data.List.NonEmpty          (NonEmpty (..))
+import           Data.Void                   (Void)
+import           Data.Word
+import           Numeric.Natural             (Natural)
 
 #ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Instances ()
+import           Generics.Deriving.Instances ()
 #endif
 
-import qualified Data.Monoid    as Mon
-import qualified Data.Ratio     as Ratio
-import qualified Data.Semigroup as Semi
+import qualified Data.Monoid                 as Mon
+import qualified Data.Ratio                  as Ratio
+import qualified Data.Semigroup              as Semi
 
 -- containers
-import qualified Data.IntMap   as IntMap
-import qualified Data.IntSet   as IntSet
-import qualified Data.Sequence as Seq
-import qualified Data.Set      as Set
-import qualified Data.Tree     as Tree
+import qualified Data.IntMap                 as IntMap
+import qualified Data.IntSet                 as IntSet
+import qualified Data.Sequence               as Seq
+import qualified Data.Set                    as Set
+import qualified Data.Tree                   as Tree
 
 -- text
-import qualified Data.Text      as T
-import qualified Data.Text.Lazy as LT
+import qualified Data.Text                   as T
+import qualified Data.Text.Lazy              as LT
 
 -- time
-import qualified Data.Time as Time
+import qualified Data.Time                   as Time
 
 -- bytestring
-import qualified Data.ByteString      as BS
-import qualified Data.ByteString.Lazy as LBS
+import qualified Data.ByteString             as BS
+import qualified Data.ByteString.Lazy        as LBS
 
-import qualified Data.ByteString.Short as SBS
+import qualified Data.ByteString.Short       as SBS
 
 -- scientific
-import qualified Data.Scientific as Sci
+import qualified Data.Scientific             as Sci
 
 -- uuid-types
-import qualified Data.UUID.Types as UUID
+import qualified Data.UUID.Types             as UUID
 
 -- vector
-import qualified Data.Vector           as V
-import qualified Data.Vector.Primitive as VP
-import qualified Data.Vector.Storable  as VS
-import qualified Data.Vector.Unboxed   as VU
+import qualified Data.Vector                 as V
+import qualified Data.Vector.Primitive       as VP
+import qualified Data.Vector.Storable        as VS
+import qualified Data.Vector.Unboxed         as VU
 
 -- tagged
-import Data.Tagged (Tagged (..))
+import           Data.Tagged                 (Tagged (..))
 
 -- hashable
-import Data.Hashable (Hashed, unhashed)
+import           Data.Hashable               (Hashed, unhashed)
 
 -- unordered-containers
-import qualified Data.HashMap.Strict as HM
-import qualified Data.HashSet        as HS
+import qualified Data.HashMap.Strict         as HM
+import qualified Data.HashSet                as HS
 
 -- aeson
-import qualified Data.Aeson as Aeson
+import qualified Data.Aeson                  as Aeson
 #if MIN_VERSION_aeson(2,0,0)
-import qualified Data.Aeson.Key    as Key
-import qualified Data.Aeson.KeyMap as KM
+import qualified Data.Aeson.Key              as Key
+import qualified Data.Aeson.KeyMap           as KM
 #endif
 
 -- strict
-import qualified Data.Strict as Strict
+import qualified Data.Strict                 as Strict
 
 -- these
-import Data.These (These (..))
+import           Data.These                  (These (..))
 
 -- primitive
 -- import qualified Data.Primitive as Prim
@@ -142,7 +144,7 @@ import Data.These (These (..))
 --   fooBool = [-Just True, +Nothing, Just False, +Just True],
 --   fooString = -"old" +"new"}
 --
-ediff :: ToExpr a => a -> a -> Edit EditExpr
+ediff ∷ ToExpr a ⇒ a → a -> Edit EditExpr
 ediff x y = exprDiff (toExpr x) (toExpr y)
 
 -- | Compare different types.
@@ -152,7 +154,7 @@ ediff x y = exprDiff (toExpr x) (toExpr y)
 -- >>> prettyEditExpr $ ediff' ["foo", "bar"] [Just "foo", Nothing]
 -- [-"foo", +Just "foo", -"bar", +Nothing]
 --
-ediff' :: (ToExpr a, ToExpr b) => a -> b -> Edit EditExpr
+ediff' ∷ (ToExpr a, ToExpr b) ⇒ a → b -> Edit EditExpr
 ediff' x y = exprDiff (toExpr x) (toExpr y)
 
 -- | 'toExpr' converts a Haskell value into
@@ -176,7 +178,7 @@ instance ToExpr Expr where
 
 -- | An alternative implementation for literal types. We use 'show'
 -- representation of them.
-defaultExprViaShow :: Show a => a -> Expr
+defaultExprViaShow ∷ Show a ⇒ a → Expr
 defaultExprViaShow x = App (show x) []
 
 -------------------------------------------------------------------------------
@@ -235,7 +237,7 @@ instance ToExpr x => GLeafToExpr (K1 i x) where
 data AppOrRec = App' [Expr] | Rec' [(FieldName, Expr)]
   deriving Show
 
-combine :: AppOrRec -> AppOrRec -> AppOrRec
+combine ∷ AppOrRec → AppOrRec -> AppOrRec
 combine (Rec' xs) (Rec' ys) = Rec' (xs ++ ys)
 combine xs        ys        = App' (exprs xs ++ exprs ys)
   where
@@ -248,7 +250,7 @@ combine xs        ys        = App' (exprs xs ++ exprs ys)
 -- >>> genericToExpr (Foo 42 'x')
 -- App "Foo" [App "42" [],App "'x'" []]
 --
-genericToExpr :: (Generic a, GToExpr (Rep a)) => a -> Expr
+genericToExpr ∷ (Generic a, GToExpr (Rep a)) ⇒ a → Expr
 genericToExpr = gtoExpr . from
 
 -------------------------------------------------------------------------------
@@ -301,9 +303,9 @@ instance ToExpr Char where
     listToExpr = stringToExpr "concat" . unconcat uncons
 
 stringToExpr
-    :: Show a
-    => String -- ^ name of concat
-    -> [a]
+    ∷ Show a
+    ⇒ String -- ^ name of concat
+    → [a]
     -> Expr
 stringToExpr _  []  = App "\"\"" []
 stringToExpr _  [l] = defaultExprViaShow l
@@ -312,15 +314,15 @@ stringToExpr cn ls  = App cn [Lst (map defaultExprViaShow ls)]
 -- | Split on '\n'.
 --
 -- prop> \xs -> xs == concat (unconcat uncons xs)
-unconcat :: forall a. (a -> Maybe (Char, a)) -> a -> [String]
+unconcat ∷ forall a. (a → Maybe (Char, a)) -> a -> [String]
 unconcat uncons_ = go where
-    go :: a -> [String]
+    go ∷ a → [String]
     go xs = case span_ xs of
         ~(ys, zs)
             | null ys   -> []
             | otherwise -> ys : go zs
 
-    span_ :: a -> (String, a)
+    span_ ∷ a → (String, a)
     span_ xs = case uncons_ xs of
         Nothing         -> ("", xs)
         Just ~(x, xs')
@@ -481,14 +483,14 @@ instance ToExpr SBS.ShortByteString where
     toExpr = stringToExpr "mconcat" . bsUnconcat BS.null BS.elemIndex BS.splitAt . SBS.fromShort
 
 bsUnconcat
-    :: forall bs int. Num int
-    => (bs -> Bool)
+    ∷ forall bs int. Num int
+    ⇒ (bs → Bool)
     -> (Word8 -> bs -> Maybe int)
     -> (int -> bs -> (bs, bs))
     -> bs
     -> [bs]
 bsUnconcat null_ elemIndex_ splitAt_ = go where
-    go :: bs -> [bs]
+    go ∷ bs → [bs]
     go bs
         | null_ bs  = []
         | otherwise = case elemIndex_ 10 bs of
