@@ -144,7 +144,7 @@ import           Data.These                  (These (..))
 --   fooBool = [-Just True, +Nothing, Just False, +Just True],
 --   fooString = -"old" +"new"}
 --
-ediff ∷ ToExpr a ⇒ a → a -> Edit EditExpr
+ediff ∷ ToExpr a ⇒ a → a → Edit EditExpr
 ediff x y = exprDiff (toExpr x) (toExpr y)
 
 -- | Compare different types.
@@ -154,7 +154,7 @@ ediff x y = exprDiff (toExpr x) (toExpr y)
 -- >>> prettyEditExpr $ ediff' ["foo", "bar"] [Just "foo", Nothing]
 -- [-"foo", +Just "foo", -"bar", +Nothing]
 --
-ediff' ∷ (ToExpr a, ToExpr b) ⇒ a → b -> Edit EditExpr
+ediff' ∷ (ToExpr a, ToExpr b) ⇒ a → b → Edit EditExpr
 ediff' x y = exprDiff (toExpr x) (toExpr y)
 
 -- | 'toExpr' converts a Haskell value into
@@ -164,13 +164,13 @@ ediff' x y = exprDiff (toExpr x) (toExpr y)
 -- App "_\215_" [App "1" [],App "Just" [App "2" []]]
 --
 class ToExpr a where
-    toExpr :: a -> Expr
+    toExpr :: a → Expr
     default toExpr
         :: (Generic a, GToExpr (Rep a))
-        => a -> Expr
+        ⇒ a → Expr
     toExpr = genericToExpr
 
-    listToExpr :: [a] -> Expr
+    listToExpr :: [a] → Expr
     listToExpr = Lst . map toExpr
 
 instance ToExpr Expr where
@@ -186,15 +186,15 @@ defaultExprViaShow x = App (show x) []
 -------------------------------------------------------------------------------
 
 class GToExpr f where
-    gtoExpr :: f x -> Expr
+    gtoExpr :: f x → Expr
 
-instance GSumToExpr f => GToExpr (M1 i c f) where
+instance GSumToExpr f ⇒ GToExpr (M1 i c f) where
     gtoExpr (M1 x) = gsumToExpr x
 
 class GSumToExpr f where
-    gsumToExpr :: f x -> Expr
+    gsumToExpr :: f x → Expr
 
-instance (GSumToExpr f, GSumToExpr g) => GSumToExpr (f :+: g) where
+instance (GSumToExpr f, GSumToExpr g) ⇒ GSumToExpr (f :+: g) where
     gsumToExpr (L1 x) = gsumToExpr x
     gsumToExpr (R1 x) = gsumToExpr x
 
@@ -205,7 +205,7 @@ instance GSumToExpr V1 where
     gsumToExpr x = x `seq` error "panic: V1 value"
 #endif
 
-instance (Constructor c, GProductToExpr f) => GSumToExpr (M1 i c f) where
+instance (Constructor c, GProductToExpr f) ⇒ GSumToExpr (M1 i c f) where
     gsumToExpr z@(M1 x) = case gproductToExpr x of
         App' exprs   -> App cn exprs
         Rec' []      -> App cn []
@@ -215,29 +215,29 @@ instance (Constructor c, GProductToExpr f) => GSumToExpr (M1 i c f) where
         cn = conName z
 
 class GProductToExpr f where
-    gproductToExpr :: f x -> AppOrRec
+    gproductToExpr :: f x → AppOrRec
 
-instance (GProductToExpr f, GProductToExpr g) => GProductToExpr (f :*: g) where
+instance (GProductToExpr f, GProductToExpr g) ⇒ GProductToExpr (f :*: g) where
     gproductToExpr (f :*: g) = gproductToExpr f `combine` gproductToExpr g
 
 instance GProductToExpr U1 where
     gproductToExpr _ = Rec' []
 
-instance (Selector s, GLeafToExpr f) => GProductToExpr (M1 i s f) where
+instance (Selector s, GLeafToExpr f) ⇒ GProductToExpr (M1 i s f) where
     gproductToExpr z@(M1 x) = case selName z of
         [] -> App' [gleafToExpr x]
         sn -> Rec' [(sn, gleafToExpr x)]
 
 class GLeafToExpr f where
-    gleafToExpr :: f x -> Expr
+    gleafToExpr :: f x → Expr
 
-instance ToExpr x => GLeafToExpr (K1 i x) where
+instance ToExpr x ⇒ GLeafToExpr (K1 i x) where
     gleafToExpr (K1 x) = toExpr x
 
 data AppOrRec = App' [Expr] | Rec' [(FieldName, Expr)]
   deriving Show
 
-combine ∷ AppOrRec → AppOrRec -> AppOrRec
+combine ∷ AppOrRec → AppOrRec → AppOrRec
 combine (Rec' xs) (Rec' ys) = Rec' (xs ++ ys)
 combine xs        ys        = App' (exprs xs ++ exprs ys)
   where
@@ -306,7 +306,7 @@ stringToExpr
     ∷ Show a
     ⇒ String -- ^ name of concat
     → [a]
-    -> Expr
+    → Expr
 stringToExpr _  []  = App "\"\"" []
 stringToExpr _  [l] = defaultExprViaShow l
 stringToExpr cn ls  = App cn [Lst (map defaultExprViaShow ls)]
@@ -314,7 +314,7 @@ stringToExpr cn ls  = App cn [Lst (map defaultExprViaShow ls)]
 -- | Split on '\n'.
 --
 -- prop> \xs -> xs == concat (unconcat uncons xs)
-unconcat ∷ forall a. (a → Maybe (Char, a)) -> a -> [String]
+unconcat ∷ forall a. (a → Maybe (Char, a)) → a → [String]
 unconcat uncons_ = go where
     go ∷ a → [String]
     go xs = case span_ xs of
@@ -330,41 +330,41 @@ unconcat uncons_ = go where
             | otherwise -> case span_ xs' of
             ~(ys, zs) -> (x : ys, zs)
 
-instance ToExpr a => ToExpr (Maybe a) where
+instance ToExpr a ⇒ ToExpr (Maybe a) where
     toExpr Nothing  = App "Nothing" []
     toExpr (Just x) = App "Just" [toExpr x]
 
-instance (ToExpr a, ToExpr b) => ToExpr (Either a b) where
+instance (ToExpr a, ToExpr b) ⇒ ToExpr (Either a b) where
     toExpr (Left x)  = App "Left"  [toExpr x]
     toExpr (Right y) = App "Right" [toExpr y]
 
-instance ToExpr a => ToExpr [a] where
+instance ToExpr a ⇒ ToExpr [a] where
     toExpr = listToExpr
 
-instance (ToExpr a, ToExpr b) => ToExpr (a, b) where
+instance (ToExpr a, ToExpr b) ⇒ ToExpr (a, b) where
     toExpr (a, b) = App "_×_" [toExpr a, toExpr b]
-instance (ToExpr a, ToExpr b, ToExpr c) => ToExpr (a, b, c) where
+instance (ToExpr a, ToExpr b, ToExpr c) ⇒ ToExpr (a, b, c) where
     toExpr (a, b, c) = App "_×_×_" [toExpr a, toExpr b, toExpr c]
-instance (ToExpr a, ToExpr b, ToExpr c, ToExpr d) => ToExpr (a, b, c, d) where
+instance (ToExpr a, ToExpr b, ToExpr c, ToExpr d) ⇒ ToExpr (a, b, c, d) where
     toExpr (a, b, c, d) = App "_×_×_×_" [toExpr a, toExpr b, toExpr c, toExpr d]
-instance (ToExpr a, ToExpr b, ToExpr c, ToExpr d, ToExpr e) => ToExpr (a, b, c, d, e) where
+instance (ToExpr a, ToExpr b, ToExpr c, ToExpr d, ToExpr e) ⇒ ToExpr (a, b, c, d, e) where
     toExpr (a, b, c, d, e) = App "_×_×_×_×_" [toExpr a, toExpr b, toExpr c, toExpr d, toExpr e]
 
 -- | >>> prettyExpr $ toExpr (3 % 12 :: Rational)
 -- _%_ 1 4
-instance (ToExpr a, Integral a) => ToExpr (Ratio.Ratio a) where
+instance (ToExpr a, Integral a) ⇒ ToExpr (Ratio.Ratio a) where
     toExpr r = App "_%_" [ toExpr $ Ratio.numerator r, toExpr $ Ratio.denominator r ]
-instance HasResolution a => ToExpr (Fixed a) where toExpr = defaultExprViaShow
+instance HasResolution a ⇒ ToExpr (Fixed a) where toExpr = defaultExprViaShow
 
 -- | >>> prettyExpr $ toExpr $ Identity 'a'
 -- Identity 'a'
-instance ToExpr a => ToExpr (Identity a) where
+instance ToExpr a ⇒ ToExpr (Identity a) where
     toExpr (Identity x) = App "Identity" [toExpr x]
 
-instance ToExpr a => ToExpr (Const a b)
-instance ToExpr a => ToExpr (ZipList a)
+instance ToExpr a ⇒ ToExpr (Const a b)
+instance ToExpr a ⇒ ToExpr (ZipList a)
 
-instance ToExpr a => ToExpr (NonEmpty a) where
+instance ToExpr a ⇒ ToExpr (NonEmpty a) where
     toExpr (x :| xs) = App "NE.fromList" [toExpr (x : xs)]
 
 instance ToExpr Void where
@@ -374,42 +374,42 @@ instance ToExpr Void where
 -- Monoid/semigroups
 -------------------------------------------------------------------------------
 
-instance ToExpr a => ToExpr (Mon.Dual a) where
-instance ToExpr a => ToExpr (Mon.Sum a) where
-instance ToExpr a => ToExpr (Mon.Product a) where
-instance ToExpr a => ToExpr (Mon.First a) where
-instance ToExpr a => ToExpr (Mon.Last a) where
+instance ToExpr a ⇒ ToExpr (Mon.Dual a) where
+instance ToExpr a ⇒ ToExpr (Mon.Sum a) where
+instance ToExpr a ⇒ ToExpr (Mon.Product a) where
+instance ToExpr a ⇒ ToExpr (Mon.First a) where
+instance ToExpr a ⇒ ToExpr (Mon.Last a) where
 
 -- ...
 #if !MIN_VERSION_base(4,16,0)
-instance ToExpr a => ToExpr (Semi.Option a) where
+instance ToExpr a ⇒ ToExpr (Semi.Option a) where
     toExpr (Semi.Option x) = App "Option" [toExpr x]
 #endif
-instance ToExpr a => ToExpr (Semi.Min a) where
+instance ToExpr a ⇒ ToExpr (Semi.Min a) where
     toExpr (Semi.Min x) = App "Min" [toExpr x]
-instance ToExpr a => ToExpr (Semi.Max a) where
+instance ToExpr a ⇒ ToExpr (Semi.Max a) where
     toExpr (Semi.Max x) = App "Max" [toExpr x]
-instance ToExpr a => ToExpr (Semi.First a) where
+instance ToExpr a ⇒ ToExpr (Semi.First a) where
     toExpr (Semi.First x) = App "First" [toExpr x]
-instance ToExpr a => ToExpr (Semi.Last a) where
+instance ToExpr a ⇒ ToExpr (Semi.Last a) where
     toExpr (Semi.Last x) = App "Last" [toExpr x]
 
 -------------------------------------------------------------------------------
 -- containers
 -------------------------------------------------------------------------------
 
-instance ToExpr a => ToExpr (Tree.Tree a) where
+instance ToExpr a ⇒ ToExpr (Tree.Tree a) where
     toExpr (Tree.Node x xs) = App "Node" [toExpr x, toExpr xs]
 
-instance (ToExpr k, ToExpr v) => ToExpr (Map.Map k v) where
+instance (ToExpr k, ToExpr v) ⇒ ToExpr (Map.Map k v) where
     toExpr x = App "Map.fromList" [ toExpr $ Map.toList x ]
-instance (ToExpr k) => ToExpr (Set.Set k) where
+instance (ToExpr k) ⇒ ToExpr (Set.Set k) where
     toExpr x = App "Set.fromList" [ toExpr $ Set.toList x ]
-instance (ToExpr v) => ToExpr (IntMap.IntMap v) where
+instance (ToExpr v) ⇒ ToExpr (IntMap.IntMap v) where
     toExpr x = App "IntMap.fromList" [ toExpr $ IntMap.toList x ]
 instance ToExpr IntSet.IntSet where
     toExpr x = App "IntSet.fromList" [ toExpr $ IntSet.toList x ]
-instance (ToExpr v) => ToExpr (Seq.Seq v) where
+instance (ToExpr v) ⇒ ToExpr (Seq.Seq v) where
     toExpr x = App "Seq.fromList" [ toExpr $ toList x ]
 
 -------------------------------------------------------------------------------
@@ -485,10 +485,10 @@ instance ToExpr SBS.ShortByteString where
 bsUnconcat
     ∷ forall bs int. Num int
     ⇒ (bs → Bool)
-    -> (Word8 -> bs -> Maybe int)
-    -> (int -> bs -> (bs, bs))
-    -> bs
-    -> [bs]
+    → (Word8 → bs → Maybe int)
+    → (int → bs → (bs, bs))
+    → bs
+    → [bs]
 bsUnconcat null_ elemIndex_ splitAt_ = go where
     go ∷ bs → [bs]
     go bs
@@ -520,36 +520,36 @@ instance ToExpr UUID.UUID where
 -- vector
 -------------------------------------------------------------------------------
 
-instance ToExpr a => ToExpr (V.Vector a) where
+instance ToExpr a ⇒ ToExpr (V.Vector a) where
     toExpr x = App "V.fromList" [ toExpr $ V.toList x ]
-instance (ToExpr a, VU.Unbox a) => ToExpr (VU.Vector a) where
+instance (ToExpr a, VU.Unbox a) ⇒ ToExpr (VU.Vector a) where
     toExpr x = App "VU.fromList" [ toExpr $ VU.toList x ]
-instance (ToExpr a, VS.Storable a) => ToExpr (VS.Vector a) where
+instance (ToExpr a, VS.Storable a) ⇒ ToExpr (VS.Vector a) where
     toExpr x = App "VS.fromList" [ toExpr $ VS.toList x ]
-instance (ToExpr a, VP.Prim a) => ToExpr (VP.Vector a) where
+instance (ToExpr a, VP.Prim a) ⇒ ToExpr (VP.Vector a) where
     toExpr x = App "VP.fromList" [ toExpr $ VP.toList x ]
 
 -------------------------------------------------------------------------------
 -- tagged
 -------------------------------------------------------------------------------
 
-instance ToExpr a => ToExpr (Tagged t a) where
+instance ToExpr a ⇒ ToExpr (Tagged t a) where
     toExpr (Tagged x) = App "Tagged" [ toExpr x ]
 
 -------------------------------------------------------------------------------
 -- hashable
 -------------------------------------------------------------------------------
 
-instance ToExpr a => ToExpr (Hashed a) where
+instance ToExpr a ⇒ ToExpr (Hashed a) where
     toExpr x = App "hashed" [ toExpr $ unhashed x ]
 
 -------------------------------------------------------------------------------
 -- unordered-containers
 -------------------------------------------------------------------------------
 
-instance (ToExpr k, ToExpr v) => ToExpr (HM.HashMap k v) where
+instance (ToExpr k, ToExpr v) ⇒ ToExpr (HM.HashMap k v) where
     toExpr x = App "HM.fromList" [ toExpr $ HM.toList x ]
-instance (ToExpr k) => ToExpr (HS.HashSet k) where
+instance (ToExpr k) ⇒ ToExpr (HS.HashSet k) where
     toExpr x = App "HS.fromList" [ toExpr $ HS.toList x ]
 
 -------------------------------------------------------------------------------
@@ -562,7 +562,7 @@ instance ToExpr Aeson.Value
 instance ToExpr Key.Key where
     toExpr = stringToExpr "Key.concat" . unconcat T.uncons . Key.toText
 
-instance ToExpr a => ToExpr (KM.KeyMap a) where
+instance ToExpr a ⇒ ToExpr (KM.KeyMap a) where
     toExpr x = App "KM.fromList" [ toExpr $ KM.toList x ]
 #endif
 
@@ -570,23 +570,23 @@ instance ToExpr a => ToExpr (KM.KeyMap a) where
 -- strict
 -------------------------------------------------------------------------------
 
-instance ToExpr a => ToExpr (Strict.Maybe a) where
+instance ToExpr a ⇒ ToExpr (Strict.Maybe a) where
     toExpr = toExpr . Strict.toLazy
 
-instance (ToExpr a, ToExpr b) => ToExpr (Strict.Either a b) where
+instance (ToExpr a, ToExpr b) ⇒ ToExpr (Strict.Either a b) where
     toExpr = toExpr . Strict.toLazy
 
-instance (ToExpr a, ToExpr b) => ToExpr (Strict.These a b) where
+instance (ToExpr a, ToExpr b) ⇒ ToExpr (Strict.These a b) where
     toExpr = toExpr . Strict.toLazy
 
-instance (ToExpr a, ToExpr b) => ToExpr (Strict.Pair a b) where
+instance (ToExpr a, ToExpr b) ⇒ ToExpr (Strict.Pair a b) where
     toExpr = toExpr . Strict.toLazy
 
 -------------------------------------------------------------------------------
 -- these
 -------------------------------------------------------------------------------
 
-instance (ToExpr a, ToExpr b) => ToExpr (These a b) where
+instance (ToExpr a, ToExpr b) ⇒ ToExpr (These a b) where
     toExpr (This x)    = App "This" [toExpr x]
     toExpr (That y)    = App "That" [toExpr y]
     toExpr (These x y) = App "These " [toExpr x, toExpr y]

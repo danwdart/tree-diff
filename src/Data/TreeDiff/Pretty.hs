@@ -43,16 +43,16 @@ import qualified Text.PrettyPrint.ANSI.Leijen as WL
 -- | Because we don't want to commit to single pretty printing library,
 -- we use explicit dictionary.
 data Pretty doc = Pretty
-    { ppCon    :: ConstructorName -> doc            -- ^ Display 'ConstructorName'
-    , ppApp    :: doc -> [doc] -> doc               -- ^ Display 'App'
-    , ppRec    :: doc -> [(FieldName, doc)] -> doc  -- ^ Display 'Rec'
-    , ppLst    :: [doc] -> doc                      -- ^ Display 'Lst'
-    , ppCpy    :: doc -> doc                        -- ^ Display unchanged parts
-    , ppIns    :: doc -> doc                        -- ^ Display added parts
-    , ppDel    :: doc -> doc                        -- ^ Display removed parts
-    , ppEdits  :: [doc] -> doc                      -- ^ Combined edits (usually some @sep@ combinator)
+    { ppCon    :: ConstructorName → doc            -- ^ Display 'ConstructorName'
+    , ppApp    :: doc → [doc] → doc               -- ^ Display 'App'
+    , ppRec    :: doc → [(FieldName, doc)] → doc  -- ^ Display 'Rec'
+    , ppLst    :: [doc] → doc                      -- ^ Display 'Lst'
+    , ppCpy    :: doc → doc                        -- ^ Display unchanged parts
+    , ppIns    :: doc → doc                        -- ^ Display added parts
+    , ppDel    :: doc → doc                        -- ^ Display removed parts
+    , ppEdits  :: [doc] → doc                      -- ^ Combined edits (usually some @sep@ combinator)
     , ppEllip  :: doc                               -- ^ Ellipsis
-    , ppParens :: doc -> doc                        -- ^ Parens an expression
+    , ppParens :: doc → doc                        -- ^ Parens an expression
     }
 
 -- | Escape field or constructor name
@@ -112,10 +112,10 @@ escapeName n
     isValidString _         = False
 
 -- | Pretty print an 'Expr' using explicit pretty-printing dictionary.
-ppExpr ∷ Pretty doc → Expr -> doc
+ppExpr ∷ Pretty doc → Expr → doc
 ppExpr p = ppExpr' p False
 
-ppExpr' ∷ Pretty doc → Bool -> Expr -> doc
+ppExpr' ∷ Pretty doc → Bool → Expr → doc
 ppExpr' p = impl where
     impl _ (App x []) = ppCon p (escapeName x)
     impl b (App x xs) = ppParens' b $ ppApp p (ppCon p (escapeName x)) (map (impl True) xs)
@@ -129,14 +129,14 @@ ppExpr' p = impl where
     ppParens' False = id
 
 -- | Pretty print an @'Edit' 'EditExpr'@ using explicit pretty-printing dictionary.
-ppEditExpr ∷ Pretty doc → Edit EditExpr -> doc
+ppEditExpr ∷ Pretty doc → Edit EditExpr → doc
 ppEditExpr = ppEditExpr' False
 
 -- | Like 'ppEditExpr' but print unchanged parts only shallowly
-ppEditExprCompact ∷ Pretty doc → Edit EditExpr -> doc
+ppEditExprCompact ∷ Pretty doc → Edit EditExpr → doc
 ppEditExprCompact = ppEditExpr' True
 
-ppEditExpr' ∷ Bool → Pretty doc -> Edit EditExpr -> doc
+ppEditExpr' ∷ Bool → Pretty doc → Edit EditExpr → doc
 ppEditExpr' compact p = go
   where
     go = ppEdits p . ppEdit False
@@ -190,10 +190,10 @@ prettyPretty = Pretty
     , ppParens = HJ.parens
     }
 
-prettyGroup ∷ HJ.Doc → HJ.Doc -> [HJ.Doc] -> HJ.Doc
+prettyGroup ∷ HJ.Doc → HJ.Doc → [HJ.Doc] → HJ.Doc
 prettyGroup l r xs = HJ.cat [l, HJ.sep (map (HJ.nest 2) (prettyPunct (HJ.char ',') r xs))]
 
-prettyPunct ∷ HJ.Doc → HJ.Doc -> [HJ.Doc] -> [HJ.Doc]
+prettyPunct ∷ HJ.Doc → HJ.Doc → [HJ.Doc] → [HJ.Doc]
 prettyPunct _   end []     = [end]
 prettyPunct _   end [x]    = [x HJ.<> end]
 prettyPunct sep end (x:xs) = (x HJ.<> sep) : prettyPunct sep end xs
@@ -233,7 +233,7 @@ ansiWlPretty = Pretty
     , ppParens = WL.parens
     }
 
-ansiGroup ∷ WL.Doc → WL.Doc -> [WL.Doc] -> WL.Doc
+ansiGroup ∷ WL.Doc → WL.Doc → [WL.Doc] → WL.Doc
 ansiGroup l r xs = WL.group $ WL.nest 2 (l WL.<$$> WL.vsep (WL.punctuate WL.comma xs) WL.<> r)
 
 -- | Pretty print 'Expr' using @ansi-wl-pprint@.

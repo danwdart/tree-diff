@@ -45,7 +45,7 @@ data Val v = Val !Int v
   deriving (Functor)
 
 -- | Note: The instance uses 'toList', so 'Eq'ual 'OMap's can be shown differently.
-instance (Show k, Show v) => Show (OMap k v) where
+instance (Show k, Show v) ⇒ Show (OMap k v) where
     showsPrec d m = showParen (d > 10)
         $ showString "fromList "
         . showsPrec d (toList m)
@@ -61,7 +61,7 @@ instance (Show k, Show v) => Show (OMap k v) where
 -- >>> xs == zs
 -- False
 --
-instance (Eq k, Eq v) => Eq (OMap k v) where
+instance (Eq k, Eq v) ⇒ Eq (OMap k v) where
     xs == ys = go (toAscList xs) (toAscList ys) where
         go [] [] = True
         go _  [] = False
@@ -73,21 +73,21 @@ instance (Eq k, Eq v) => Eq (OMap k v) where
 -- deepseq
 -------------------------------------------------------------------------------
 
-instance NFData v => NFData (Val v) where
+instance NFData v ⇒ NFData (Val v) where
     rnf (Val _ v) = rnf v
 
-instance (NFData k, NFData v) => NFData (OMap k v) where
+instance (NFData k, NFData v) ⇒ NFData (OMap k v) where
     rnf (OMap m) = rnf m
 
 -------------------------------------------------------------------------------
 -- QuickCheck
 -------------------------------------------------------------------------------
 
-instance (Ord k, QC.Arbitrary k, QC.Arbitrary v) => QC.Arbitrary (OMap k v) where
+instance (Ord k, QC.Arbitrary k, QC.Arbitrary v) ⇒ QC.Arbitrary (OMap k v) where
     arbitrary = QC.arbitrary1
     shrink    = QC.shrink1
 
-instance (Ord k, QC.Arbitrary k) => QC.Arbitrary1 (OMap k) where
+instance (Ord k, QC.Arbitrary k) ⇒ QC.Arbitrary1 (OMap k) where
     liftArbitrary arb = fmap fromList $ QC.liftArbitrary (QC.liftArbitrary arb)
     liftShrink shr m  = fmap fromList $ QC.liftShrink (QC.liftShrink shr) $ toList m
 
@@ -152,7 +152,7 @@ fromList kvs = OMap (Map.fromList (zipWith p [0..] kvs)) where
 -- >>> alignWith id xs ys
 -- fromList [('a',This "alpha"),('c',That 3),('b',These "beta" 2)]
 --
-instance Ord k => Semialign (OMap k) where
+instance Ord k ⇒ Semialign (OMap k) where
     alignWith f (OMap xs) (OMap ys) = OMap (alignWith g xs ys) where
         g (This (Val i x))            = Val i (f (This x))
         g (That (Val j y))            = Val j (f (That y))

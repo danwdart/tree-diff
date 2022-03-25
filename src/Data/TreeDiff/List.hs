@@ -1,16 +1,17 @@
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE BangPatterns        #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE UnicodeSyntax       #-}
 -- | A list diff.
 module Data.TreeDiff.List (
     diffBy,
     Edit (..),
 ) where
 
-import Control.DeepSeq (NFData (..))
-import Control.Monad.ST (ST, runST)
-import Data.Bifunctor (second)
+import           Control.DeepSeq  (NFData (..))
+import           Control.Monad.ST (ST, runST)
+import           Data.Bifunctor   (second)
 
-import qualified Data.Primitive as P
+import qualified Data.Primitive   as P
 
 -- import Debug.Trace
 
@@ -25,7 +26,7 @@ data Edit a
     | Swp a a  -- ^ swap, i.e. delete + insert
   deriving (Eq, Show)
 
-instance NFData a => NFData (Edit a) where
+instance NFData a ⇒ NFData (Edit a) where
     rnf (Ins x)   = rnf x
     rnf (Del x)   = rnf x
     rnf (Cpy x)   = rnf x
@@ -42,7 +43,7 @@ instance NFData a => NFData (Edit a) where
 -- prop> \xs ys -> length (diffBy (==) xs ys) >= max (length xs) (length (ys :: String))
 -- prop> \xs ys -> length (diffBy (==) xs ys) <= length xs + length (ys :: String)
 --
-diffBy :: forall a. Show a => (a -> a -> Bool) -> [a] -> [a] -> [Edit a]
+diffBy ∷ forall a. Show a ⇒ (a → a → Bool) → [a] → [a] → [Edit a]
 diffBy _  [] []   = []
 diffBy _  []  ys' = map Ins ys'
 diffBy _  xs' []  = map Del xs'
@@ -55,7 +56,7 @@ diffBy eq xs' ys'
     xs = P.arrayFromListN xn xs'
     ys = P.arrayFromListN yn ys'
 
-    lcs :: Cell [Edit a]
+    lcs ∷ Cell [Edit a]
     lcs = runST $ do
         -- traceShowM ("sizes", xn, yn)
 
@@ -82,7 +83,7 @@ diffBy eq xs' ys'
             -- traceShowM ("prev", n, prevZ)
             -- traceShowM ("curr", n, currZ)
 
-            let cellL :: Cell [Edit a]
+            let cellL ∷ Cell [Edit a]
                 cellL = case cellC of (Cell w edit) -> Cell (w + 1) (Del (P.indexArray xs n) : edit)
 
             -- traceShowM ("cellC, cellL", n, cellC, cellL)
@@ -93,26 +94,26 @@ diffBy eq xs' ys'
 
                 -- traceShowM ("cellT", n, m, cellT)
 
-                let x, y :: a
+                let x, y ∷ a
                     x = P.indexArray xs n
                     y = P.indexArray ys m
 
                 -- from diagonal
-                let cellX1 :: Cell [Edit a]
+                let cellX1 ∷ Cell [Edit a]
                     cellX1
                         | eq x y    = second (Cpy x :)   cellC'
                         | otherwise = bimap (+1) (Swp x y :) cellC'
 
                 -- from left
-                let cellX2 :: Cell [Edit a]
+                let cellX2 ∷ Cell [Edit a]
                     cellX2 = bimap (+1) (Ins y :) cellL'
 
                 -- from top
-                let cellX3 :: Cell [Edit a]
+                let cellX3 ∷ Cell [Edit a]
                     cellX3 = bimap (+1) (Del x :) cellT
 
                 -- the actual cell is best of three
-                let cellX :: Cell [Edit a]
+                let cellX ∷ Cell [Edit a]
                     cellX = bestOfThree cellX1 cellX2 cellX3
 
                 -- traceShowM ("cellX", n, m, cellX)
@@ -126,14 +127,14 @@ diffBy eq xs' ys'
 
         P.readArray buf1final (yn - 1)
 
-    xLoop :: acc -> (Int -> acc -> ST s acc) -> ST s acc
+    xLoop ∷ acc → (Int → acc → ST s acc) → ST s acc
     xLoop !acc0 f = go acc0 0 where
         go !acc !n | n < xn = do
             acc' <- f n acc
             go acc' (n + 1)
         go !acc _ = return acc
 
-    yLoop :: acc -> (Int -> acc -> ST s acc) -> ST s ()
+    yLoop ∷ acc → (Int → acc → ST s acc) → ST s ()
     yLoop !acc0 f = go acc0 0 where
         go !acc !m | m < yn = do
             acc' <- f m acc
@@ -142,10 +143,10 @@ diffBy eq xs' ys'
 
 data Cell a = Cell !Int !a deriving Show
 
-getCell :: Cell a -> a
+getCell ∷ Cell a → a
 getCell (Cell _ x) = x
 
-bestOfThree :: Cell a -> Cell a -> Cell a -> Cell a
+bestOfThree ∷ Cell a → Cell a → Cell a → Cell a
 bestOfThree a@(Cell i _x) b@(Cell j _y) c@(Cell k _z)
     | i <= j
     = if i <= k then a else c
@@ -153,5 +154,5 @@ bestOfThree a@(Cell i _x) b@(Cell j _y) c@(Cell k _z)
     | otherwise
     = if j <= k then b else c
 
-bimap :: (Int -> Int) -> (a -> b) -> Cell a -> Cell b
+bimap ∷ (Int → Int) → (a → b) → Cell a → Cell b
 bimap f g (Cell i x) = Cell (f i) (g x)

@@ -39,11 +39,11 @@ import qualified Text.PrettyPrint.ANSI.Leijen as WL
 --
 ediffGolden
     ∷ (Eq a, ToExpr a)
-    ⇒ (testName → IO Expr -> IO Expr -> (Expr -> Expr -> IO (Maybe String)) -> (Expr -> IO ()) -> testTree) -- ^ 'goldenTest'
-    -> testName  -- ^ test name
-    -> FilePath  -- ^ path to "golden file"
-    -> IO a      -- ^ result value
-    -> testTree
+    ⇒ (testName → IO Expr → IO Expr → (Expr → Expr → IO (Maybe String)) → (Expr → IO ()) → testTree) -- ^ 'goldenTest'
+    → testName  -- ^ test name
+    → FilePath  -- ^ path to "golden file"
+    → IO a      -- ^ result value
+    → testTree
 ediffGolden impl testName fp x = impl testName expect actual cmp wrt
   where
     actual = fmap toExpr x

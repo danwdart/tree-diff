@@ -77,7 +77,7 @@ arbName = QC.frequency
 -- | Diff two 'Expr'.
 --
 -- For examples see 'ediff' in "Data.TreeDiff.Class".
-exprDiff ∷ Expr → Expr -> Edit EditExpr
+exprDiff ∷ Expr → Expr → Edit EditExpr
 exprDiff = impl
   where
     impl ea eb | ea == eb = Cpy (EditExp ea)

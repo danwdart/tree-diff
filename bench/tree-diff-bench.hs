@@ -57,7 +57,7 @@ main = do
 -- Orphans
 -------------------------------------------------------------------------------
 
-instance (NFData a, NFData b) => NFData (Diff.PolyDiff a b) where
+instance (NFData a, NFData b) ⇒ NFData (Diff.PolyDiff a b) where
     rnf (Diff.First x)  = rnf x
     rnf (Diff.Second y) = rnf y
     rnf (Diff.Both x y) = rnf x `seq` rnf y

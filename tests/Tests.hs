@@ -37,7 +37,7 @@ main = defaultMain $ testGroup "tests"
 -- diffBy
 -------------------------------------------------------------------------------
 
-diffByModel ∷ [Word8] → [Word8] -> Property
+diffByModel ∷ [Word8] → [Word8] → Property
 diffByModel xs ys =
     diffBy (==) xs ys === RefDiffBy.diffBy (==) xs ys
 
