@@ -1,4 +1,3 @@
-{-# LANGUAGE UnicodeSyntax #-}
 -- | "Golden tests" using 'ediff' comparison.
 module Data.TreeDiff.Golden (
     ediffGolden,

@@ -1,4 +1,3 @@
-{-# LANGUAGE UnicodeSyntax #-}
 -- | Utilities to pretty print 'Expr' and 'EditExpr'
 module Data.TreeDiff.Pretty (
     -- * Explicit dictionary

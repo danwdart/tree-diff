@@ -1,4 +1,3 @@
-{-# LANGUAGE UnicodeSyntax #-}
 -- | @QuickCheck@ related utilities.
 module Data.TreeDiff.QuickCheck (
     ediffEq,

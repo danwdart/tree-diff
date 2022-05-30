@@ -6,7 +6,6 @@
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators       #-}
-{-# LANGUAGE UnicodeSyntax       #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE EmptyCase           #-}
 #endif

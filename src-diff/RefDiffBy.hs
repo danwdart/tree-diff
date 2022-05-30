@@ -1,5 +1,4 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE UnicodeSyntax       #-}
 module RefDiffBy (diffBy) where
 
 import           Data.TreeDiff.List (Edit (..))

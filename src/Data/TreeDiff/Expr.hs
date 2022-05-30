@@ -1,4 +1,3 @@
-{-# LANGUAGE UnicodeSyntax #-}
 -- | This module uses 'Expr' for richer diffs than based on 'Tree'.
 module Data.TreeDiff.Expr (
     -- * Types

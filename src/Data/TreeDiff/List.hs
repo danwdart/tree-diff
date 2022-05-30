@@ -1,6 +1,5 @@
 {-# LANGUAGE BangPatterns        #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE UnicodeSyntax       #-}
 -- | A list diff.
 module Data.TreeDiff.List (
     diffBy,

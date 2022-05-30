@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP           #-}
 {-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE UnicodeSyntax #-}
 -- | Map which remembers the 'fromList' order.
 -- This module is minimal on purpose.
 module Data.TreeDiff.OMap (

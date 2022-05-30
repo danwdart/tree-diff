@@ -1,4 +1,3 @@
-{-# LANGUAGE UnicodeSyntax #-}
 -- | Diffing of (expression) trees.
 --
 -- Diffing arbitrary Haskell data. First we convert values to untyped

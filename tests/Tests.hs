@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE UnicodeSyntax #-}
 module Main (main) where
 
 import           Data.Proxy                   (Proxy (..))

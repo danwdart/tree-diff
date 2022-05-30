@@ -1,5 +1,4 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE UnicodeSyntax       #-}
 -- | Utilities to parse 'Expr'.
 --
 -- /Note:/ we don't parse diffs.

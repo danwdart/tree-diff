@@ -1,5 +1,4 @@
-{-# LANGUAGE CPP           #-}
-{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE CPP #-}
 -- | Tree diffing working on @containers@ 'Tree'.
 module Data.TreeDiff.Tree (treeDiff, EditTree (..), Edit (..)) where
 
